@@ -3,7 +3,7 @@ from gym import spaces
 import numpy as np
 
 from ball import Ball
-from game_board import GameBoard
+from board import Board
 from matka import Matka
 
 DOWN = 0
@@ -14,7 +14,7 @@ UP = 2
 class Environment(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, board: GameBoard, ball: Ball, left_matka: Matka, right_matka: Matka) -> None:
+    def __init__(self, board: Board, ball: Ball, left_matka: Matka, right_matka: Matka) -> None:
         super(Environment, self).__init__()
 
         self.board = board
