@@ -19,15 +19,6 @@ class Environment(gym.Env):
         self.game = game
 
         self.action_space = spaces.Discrete(3)
-        # left_matka center location, right_matka center location, ball loc, ball speed
-        # low = np.array(
-        #     [game.left_matka.length / 2, game.right_matka.length / 2,
-        #      0, 0,
-        #      -game.speed, -game.speed])
-        # high = np.array(
-        #     [game.height - game.left_matka.length / 2, game.height - game.right_matka.length / 2,
-        #      game.width, game.height,
-        #      game.speed, game.speed])
 
         low = np.array([-1, -1])
         high = np.array([1, 1])
@@ -38,9 +29,6 @@ class Environment(gym.Env):
         self.iterations = 0
 
     def _pull_observation(self):
-        # return np.array([self.game.left_matka.y, self.game.right_matka.y,
-        #                  self.game.ball.x, self.game.ball.y, self.game.ball.speed[0], self.game.ball.speed[1]])
-
         return np.array([(self.game.left_matka.y - self.game.ball.y) / self.game.height,
                          np.sign(self.game.ball.speed[1])])
 
@@ -72,3 +60,6 @@ class Environment(gym.Env):
             reward += 1 - distance
 
         return self._pull_observation(), reward, 0, {}
+
+    def render(self, mode='human'):
+        pass
