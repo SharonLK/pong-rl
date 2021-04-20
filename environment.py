@@ -14,28 +14,43 @@ UP = 2
 class Environment(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, board: GameBoard, ball: Ball, left_matka: Matka, right_matka: Matka) -> None:
+    def __init__(self, game: Game) -> None:
         super(Environment, self).__init__()
 
-        self.board = board
-        self.ball = ball
-        self.left_matka = left_matka
-        self.right_matka = right_matka
+        self.game = game
 
         self.action_space = spaces.Discrete(3)
+        # left_matka center location, right_matka center location, ball loc, ball speed
         self.observation_space = spaces.Tuple((
-            spaces.Box(low=left_matka.length / 2, high=board.width - left_matka.length / 2, shape=1),
-            spaces.Box(low=right_matka.length / 2, high=board.width - right_matka.length / 2, shape=1),
-            spaces.Box(low=0, high=board.length, shape=1),
-            spaces.Box(low=0, high=board.width, shape=1),
-            spaces.Box(low=0, high=ball.speed, shape=2),
+            spaces.Box(low=game.left_matka.length / 2, high=game.board.height - game.left_matka.length / 2, shape=1),
+            spaces.Box(low=game.right_matka.length / 2, high=game.board.height - game.right_matka.length / 2, shape=1),
+            spaces.Box(low=np.array([0, 0]), high=np.array([game.board.width, game.board.height])),
+            spaces.Box(low=0, high=game.ball.speed, shape=2),
         ))
 
+    def _pull_observation(self):
+        return np.array([self.game.left_matka.y, self.game.right_matka.y,
+                         (self.game.ball.x, self.game.ball.y), self.game.ball.speed])
 
     def reset(self) -> np.ndarray:
-        return np.array([self.left_matka.y, self.right_matka.y, self.ball.x, self.ball.y, self.ball.speed])
+        self.game.reset()
+        return self._pull_observation()
 
     def step(self, action):
-        if action == UP:
-            self.
+        self.game.advance(action)
 
+        if self.game.game_over():
+            if self.game.ball.x < self.game.width / 2:
+                return self._pull_observation(), -1, 1, {}
+            return self._pull_observation(), 1, 1, {}
+
+        # Only if the ball is advancing on the enemy can we rest on our laurels
+        reward = 0
+        if self.game.ball.speed[0] > 0:
+            reward += 1e-2
+        # Reward for following the ball, always be ready
+        if self.game.left_matka.y - self.game.left_matka.length / 2 < self.game.ball.y < \
+            self.game.left_matka.y + self.game.left_matka.length / 2:
+            reward += 1e-2
+
+        return self._pull_observation(), reward, 0, {}
