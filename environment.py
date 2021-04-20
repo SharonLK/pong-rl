@@ -60,23 +60,10 @@ class Environment(gym.Env):
                 return self._pull_observation(), -0, 1, {}
             return self._pull_observation(), 0, 1, {}
 
-        # if self.iterations > 200:
-        #     return self._pull_observation(), 0, 1, {}
-
-        # Only if the ball is advancing on the enemy can we rest on our laurels
-        # reward = 0
-        # if self.game.ball.speed[0] > 0:
-        #     reward += 1e-2
-
         reward = 0
 
         if action != 1:
             reward = -0.1
-
-        # Reward for following the ball, always be ready
-        # if self.game.left_matka.y - self.game.left_matka.length / 2 < self.game.ball.y < \
-        #         self.game.left_matka.y + self.game.left_matka.length / 2:
-        #     reward += 1
 
         distance = abs(self.game.left_matka.y - self.game.ball.y) / (self.game.left_matka.length // 2)
         if distance <= 0.5:
