@@ -43,8 +43,8 @@ if __name__ == '__main__':
 
         # ball = env.get_ball()
         ball = Ball(ball.x + 0.01, ball.y + 0.0025)
-        pygame.draw.circle(screen, (200, 200, 200), (ball.x, ball.y), 7)
-        pygame.draw.circle(screen, (51, 133, 161), (ball.x, ball.y), 5)
+        pygame.draw.circle(screen, (200, 200, 200), (ball.x, ball.y), 13)
+        pygame.draw.circle(screen, (51, 133, 161), (ball.x, ball.y), 11)
 
         left_bat += 0.1
         pygame.draw.line(screen, (180, 180, 180), (5, left_bat - 50), (5, left_bat + 50), 7)
