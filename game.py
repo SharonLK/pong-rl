@@ -4,8 +4,11 @@ from typing import Optional
 import numpy as np
 
 from ball import Ball
-from environment import DOWN, UP
 from matka import Matka
+
+DOWN = 0
+STAND = 1
+UP = 2
 
 
 class Game:
@@ -40,16 +43,17 @@ class Game:
         self.ball = Ball(ball_x, ball_y, speed)
         self.left_matka = left
         self.right_matka = right
+        self.ended = False
 
     def _move_matka(self, matka: Matka, action: int) -> None:
         if action == UP:
             matka.set_location(matka.y - matka.step_size)
-            if matka.y + matka.length // 2 > self.height:
-                matka.set_location(self.height - matka.length // 2)
-        elif action == DOWN:
-            matka.set_location(matka.y + matka.step_size)
             if matka.y < matka.length // 2:
                 matka.set_location(matka.length // 2)
+        elif action == DOWN:
+            matka.set_location(matka.y + matka.step_size)
+            if matka.y + matka.length // 2 > self.height:
+                matka.set_location(self.height - matka.length // 2)
 
     def advance(self, left_action: int, right_action: int) -> None:
         self._move_matka(self.left_matka, left_action)
@@ -75,8 +79,8 @@ class Game:
                 self.ended = True
 
         if self.ball.location[0] >= self.width:
-            lower_matka = self.left_matka.y - self.left_matka.length // 2
-            upper_matka = self.left_matka.y + self.left_matka.length // 2
+            lower_matka = self.right_matka.y - self.right_matka.length // 2
+            upper_matka = self.right_matka.y + self.right_matka.length // 2
             if lower_matka <= self.ball.location[1] <= upper_matka:
                 self.ball.location[0] = self.width - abs(self.ball.location[0])
                 self.ball.speed[0] = -abs(self.ball.speed[0])

@@ -1,6 +1,10 @@
 from ball import Ball
-from environment import DOWN, STAND, UP
+
 from matka import Matka
+
+DOWN = 0
+STAND = 1
+UP = 2
 
 
 class Bot:

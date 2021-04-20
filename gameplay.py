@@ -1,10 +1,10 @@
 import random
 
-import gym
 import pygame
-from stable_baselines3 import A2C
+from stable_baselines3 import PPO
+from stable_baselines3.common.policies import ActorCriticPolicy
 
-from environment import DOWN, STAND, UP
+from environment import DOWN, Environment, STAND, UP
 from game import Game
 
 WIDTH = 800
@@ -13,22 +13,25 @@ HEIGHT = 600
 BAT_DISTANCE_FROM_SCREEN = 3
 
 if __name__ == '__main__':
+    game = Game(WIDTH, HEIGHT, 100, 15, 30)
+    game.reset()
+
+    env = Environment(game)
+    model = PPO(ActorCriticPolicy, env, verbose=1)
+    model.learn(total_timesteps=15000)
+
+    obs = env.reset()
+
     pygame.init()
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
-    env = gym.make('CartPole-v1')
-
-    model = A2C('MlpPolicy', env, verbose=1)
-
-    env.reset()
-
-    game = Game(WIDTH, HEIGHT, 100, 0.2, 0.33)
-    game.reset()
-
     rain = [[random.random() * WIDTH * 1.1 * 100, random.random() * 10] for _ in range(10)]
+
+    clock = pygame.time.Clock()
 
     running = True
     while running:
+        clock.tick(15)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -40,7 +43,13 @@ if __name__ == '__main__':
         if keys[pygame.K_UP]:
             action = UP
 
-        game.advance(action, action)
+        obs = env._pull_observation()
+        print('=' * 20)
+        print(obs)
+        rl_action, _states = model.predict(obs, deterministic=True)
+        print(env._pull_observation())
+
+        game.advance(rl_action, action)
 
         screen.fill((25, 25, 25))
         # pygame.draw.rect(screen, (200, 200, 200), (0, 0, WIDTH, HEIGHT), 5)
@@ -71,7 +80,7 @@ if __name__ == '__main__':
                          (WIDTH - BAT_DISTANCE_FROM_SCREEN, game.right_matka.y - game.matka_length // 2),
                          (WIDTH - BAT_DISTANCE_FROM_SCREEN, game.right_matka.y + game.matka_length // 2), 7)
 
-        if game.has_ended():
+        if env.game.has_ended():
             running = False
 
         pygame.display.flip()
