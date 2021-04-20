@@ -2,10 +2,6 @@ import gym
 from gym import spaces
 import numpy as np
 
-from ball import Ball
-from game_board import GameBoard
-from matka import Matka
-
 DOWN = 0
 STAND = 1
 UP = 2

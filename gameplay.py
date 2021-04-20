@@ -1,17 +1,16 @@
-from typing import NamedTuple
+import random
 
 import gym
 import pygame
 from stable_baselines3 import A2C
 
-
-class Ball(NamedTuple):
-    x: float
-    y: float
-
+from environment import DOWN, STAND, UP
+from game import Game
 
 WIDTH = 800
 HEIGHT = 600
+
+BAT_DISTANCE_FROM_SCREEN = 3
 
 if __name__ == '__main__':
     pygame.init()
@@ -23,9 +22,10 @@ if __name__ == '__main__':
 
     env.reset()
 
-    ball = Ball(0, 0)
-    left_bat = 0
-    right_bat = 0
+    game = Game(WIDTH, HEIGHT, 100, 0.2, 0.33)
+    game.reset()
+
+    rain = [[random.random() * WIDTH * 1.1 * 100, random.random() * 10] for _ in range(10)]
 
     running = True
     while running:
@@ -34,22 +34,45 @@ if __name__ == '__main__':
                 running = False
 
         keys = pygame.key.get_pressed()
+        action = STAND
         if keys[pygame.K_DOWN]:
-            right_bat += 0.1
+            action = DOWN
         if keys[pygame.K_UP]:
-            right_bat -= 0.1
+            action = UP
+
+        game.advance(action, action)
 
         screen.fill((25, 25, 25))
+        # pygame.draw.rect(screen, (200, 200, 200), (0, 0, WIDTH, HEIGHT), 5)
 
-        # ball = env.get_ball()
-        ball = Ball(ball.x + 0.01, ball.y + 0.0025)
-        pygame.draw.circle(screen, (200, 200, 200), (ball.x, ball.y), 7)
-        pygame.draw.circle(screen, (51, 133, 161), (ball.x, ball.y), 5)
+        pygame.draw.circle(screen, (200, 200, 200), (game.ball.x, game.ball.y), 13)
+        pygame.draw.circle(screen, (51, 133, 161), (game.ball.x, game.ball.y), 11)
 
-        left_bat += 0.1
-        pygame.draw.line(screen, (180, 180, 180), (5, left_bat - 50), (5, left_bat + 50), 7)
+        if random.random() < 0.05:
+            rain.append([random.random() * WIDTH * 1.1 - 100, random.random() * 10])
 
-        pygame.draw.line(screen, (180, 180, 180), (WIDTH - 5, right_bat - 50), (WIDTH - 5, right_bat + 50), 7)
+        for droplet in rain:
+            droplet[0] += 0.025
+            droplet[1] += 0.1
+
+            pygame.draw.line(screen, (200, 200, 200),
+                             (droplet[0], droplet[1]),
+                             (droplet[0] + 2.5, droplet[1] + 10), 1)
+
+        for i in range(len(rain) - 1, -1, -1):
+            if rain[i][1] > HEIGHT:
+                del rain[i]
+
+        pygame.draw.line(screen, (180, 180, 180),
+                         (BAT_DISTANCE_FROM_SCREEN, game.left_matka.y - game.matka_length // 2),
+                         (BAT_DISTANCE_FROM_SCREEN, game.left_matka.y + game.matka_length // 2), 7)
+
+        pygame.draw.line(screen, (180, 180, 180),
+                         (WIDTH - BAT_DISTANCE_FROM_SCREEN, game.right_matka.y - game.matka_length // 2),
+                         (WIDTH - BAT_DISTANCE_FROM_SCREEN, game.right_matka.y + game.matka_length // 2), 7)
+
+        if game.has_ended():
+            running = False
 
         pygame.display.flip()
 
