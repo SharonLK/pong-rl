@@ -29,7 +29,7 @@ class Game:
         ball = Ball(ball_x, ball_y, ball_speed)
         left = Matka(0, np.random.random() * self.board.width, self.matka_length, self.matka_step_size)
         right = Matka(self.board.length, np.random.random() * self.board.width, self.matka_length, self.matka_step_size)
-        return ball_x, right, left
+        return ball, right, left
 
     def _move_matka(self, matka: Matka, action: int) -> None:
 
