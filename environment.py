@@ -1,6 +1,6 @@
 import gym
-from gym import spaces
 import numpy as np
+from gym import spaces
 
 from ball import Ball
 from board import Board
@@ -24,18 +24,16 @@ class Environment(gym.Env):
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Tuple((
-            spaces.Box(low=left_matka.length / 2, high=board.width - left_matka.length / 2, shape=1),
-            spaces.Box(low=right_matka.length / 2, high=board.width - right_matka.length / 2, shape=1),
-            spaces.Box(low=0, high=board.length, shape=1),
+            spaces.Box(low=left_matka.length / 2, high=board.height - left_matka.length / 2, shape=1),
+            spaces.Box(low=right_matka.length / 2, high=board.height - right_matka.length / 2, shape=1),
             spaces.Box(low=0, high=board.width, shape=1),
+            spaces.Box(low=0, high=board.height, shape=1),
             spaces.Box(low=0, high=ball.speed, shape=2),
         ))
-
 
     def reset(self) -> np.ndarray:
         return np.array([self.left_matka.y, self.right_matka.y, self.ball.x, self.ball.y, self.ball.speed])
 
     def step(self, action):
         if action == UP:
-            self.
-
+            pass
